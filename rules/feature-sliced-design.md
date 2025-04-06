@@ -24,7 +24,21 @@ Feature-Sliced Design (FSD) Architectural Methodology v2.1
     - fonts: Global font loading and setup for consistent typography
 
 ### 1-2. Pages Layer
-  * Role: 
+  * Role
+    - Represents the top-level page views of the application that users directly interact with
+  * Characteristics
+    - Each page is its own slice (e.g., home, profile, article-read, settings)
+    - Cannot reference other pages (cannot import code from other pages)
+    - Can only import from layers below (widgets, features, entities, shared)
+    - Combines widgets, features and other components to create complete pages
+    - Typically contains routing configuration specific to that page
+    - May include page-specific layouts, state management, and API interactions
+  * Main Segments
+    - ui: Page-specific components and layouts
+    - api: Page-specific API requests
+    - model: Page-specific state and business logic
+    - lib: Helper functions and utilities specific to the page
+    - config: configuration files and feature flags.
 
 ### 1-3. Widgets Layer
   * Role:
