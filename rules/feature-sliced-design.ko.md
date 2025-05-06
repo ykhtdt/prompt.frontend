@@ -150,4 +150,37 @@ App 및 Shared 레이어는 이 규칙의 예외입니다:
 
 * **동일한 슬라이스 내**: 슬라이스의 응집성과 이식성을 유지하기 위해 상대 경로가 선호됩니다. 예: features/auth 슬라이스 내에서 절대 경로 대신 `import { validatePassword } from '../lib/validators'`를 사용합니다.
 * **다른 레이어에서**: 의존성을 명확하고 명시적으로 만들기 위해 다른 레이어에서 가져올 때는 절대 경로가 권장됩니다. 예: `import { User } from 'entities/user'`
-* **App 및 Shared 레이어의 세그먼트에서**: 팀 선호도에 따라 상대 경로 또는 절대 경로를 사용할 수 있지만, 프로젝트 전체에서 일관성을 유지해야 합니다. 
+* **App 및 Shared 레이어의 세그먼트에서**: 팀 선호도에 따라 상대 경로 또는 절대 경로를 사용할 수 있지만, 프로젝트 전체에서 일관성을 유지해야 합니다.
+
+#### 2-2-4. 가져오기 순서 규칙
+
+여러 레이어에서 코드를 가져올 때는 코드의 가독성과 일관성을 유지하기 위해 다음과 같은 순서로 import 문을 작성하는 것이 권장됩니다:
+
+* 높은 레이어에서 낮은 레이어 순으로 import 문을 배치합니다 (구체적인 것에서 추상적인 것으로).
+* 예를 들어, App 레이어의 파일에서는 다음 순서로 import 문을 작성합니다:
+  ```javascript
+  // 1. 외부 라이브러리
+  import axios from 'axios';
+  
+  // 2. FSD 레이어 (위에서 아래로)
+  // 2.1. widgets 레이어 (app 바로 아래)
+  import { Header } from 'widgets/header';
+  
+  // 2.2. features 레이어
+  import { AuthForm } from 'features/auth';
+  
+  // 2.3. entities 레이어
+  import { User } from 'entities/user';
+  
+  // 2.4. shared 레이어 (가장 아래)
+  import { Button } from 'shared/ui';
+  import { ApiClient } from 'shared/api';
+  
+  // 3. 부모 디렉토리 import
+  import { config } from '../config';
+  
+  // 4. 현재 디렉토리 import
+  import { utils } from './utils';
+  ```
+
+이러한 순서는 Feature-Sliced Design의 공식 ESLint 규칙과 일치하며, 코드의 구조와 의존성을 더 명확하게 보여줍니다. 

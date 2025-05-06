@@ -151,3 +151,36 @@ App and Shared layers are exceptions to this rule:
 * **Within the same slice**: Relative paths are preferred to maintain the cohesion and portability of the slice. Example: within the features/auth slice, use `import { validatePassword } from '../lib/validators'` rather than absolute paths.
 * **From other layers**: Absolute paths are recommended when importing from other layers to make dependencies clear and explicit. Example: `import { User } from 'entities/user'`
 * **From segments in App and Shared layers**: Either relative or absolute paths can be used based on team preference, but consistency should be maintained throughout the project.
+
+#### 2-2-4. Import Order Conventions
+
+When importing code from multiple layers, it is recommended to organize import statements in the following order to maintain readability and consistency:
+
+* Arrange import statements from higher layers to lower layers (from specific to abstract).
+* For example, in a file within the App layer, the import statements should be arranged as follows:
+  ```javascript
+  // 1. External libraries
+  import axios from 'axios';
+  
+  // 2. FSD layers (top to bottom)
+  // 2.1. widgets layer (just below App)
+  import { Header } from 'widgets/header';
+  
+  // 2.2. features layer
+  import { AuthForm } from 'features/auth';
+  
+  // 2.3. entities layer
+  import { User } from 'entities/user';
+  
+  // 2.4. shared layer (lowest)
+  import { Button } from 'shared/ui';
+  import { ApiClient } from 'shared/api';
+  
+  // 3. Parent directory imports
+  import { config } from '../config';
+  
+  // 4. Current directory imports
+  import { utils } from './utils';
+  ```
+
+This ordering aligns with the official ESLint rules for Feature-Sliced Design and makes the code structure and dependencies more clear.
