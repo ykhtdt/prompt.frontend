@@ -116,4 +116,36 @@ Feature-Sliced Design (FSD) Architectural Methodology v2.1
     - lib: Focused internal libraries (e.g., for dates, colors, text manipulation)
     - config: Environment variables, global feature flags, and configuration
     - routes: Route constants and patterns for matching routes
-    - i18n: Translation setup and global translation strings  
+
+## 2. Import rule on layers
+
+### Simple Summary: Code Import Rules
+
+The core rules for importing code in FSD are:
+
+1. **Downward Imports Only**: Always import code only from layers below your current layer.
+2. **No Horizontal Imports**: Cannot import code from other slices within the same layer.
+3. **Free Internal References**: Freely import code from within your own slice.
+4. **App and Shared Exceptions**: These two layers don't have slices, and their segments can freely import from each other.
+
+### Detailed Explanation
+
+#### Layer Import Rules
+
+Layers consist of slices - highly cohesive groups of modules. Dependencies between slices are regulated by the layer import rule:
+
+* A module (file) in a slice can only import from slices located in layers strictly below it.
+* For example, a file inside 📁 ~/features/aaa (~/features/aaa/api/request.ts) cannot import code from any file in 📁 ~/features/bbb, but can import from 📁 ~/entities and 📁 ~/shared. It can also import from other files within its own slice 📁 ~/features/aaa (e.g., ~/features/aaa/lib/cache.ts).
+
+#### Special Exceptions: App and Shared Layers
+
+App and Shared layers are exceptions to this rule:
+* They function both as layers and as slices simultaneously.
+* While slices typically partition code by business domain, Shared has no business domains, and App combines all business domains.
+* In practice, this means that App and Shared layers are composed of segments, and these segments can import from each other freely.
+
+#### Import Path Conventions
+
+* **Within the same slice**: Relative paths are preferred to maintain the cohesion and portability of the slice. Example: within the features/auth slice, use `import { validatePassword } from '../lib/validators'` rather than absolute paths.
+* **From other layers**: Absolute paths are recommended when importing from other layers to make dependencies clear and explicit. Example: `import { User } from 'entities/user'`
+* **From segments in App and Shared layers**: Either relative or absolute paths can be used based on team preference, but consistency should be maintained throughout the project.
