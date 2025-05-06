@@ -135,7 +135,7 @@ The core rules for importing code in FSD are:
 Layers consist of slices - highly cohesive groups of modules. Dependencies between slices are regulated by the layer import rule:
 
 * A module (file) in a slice can only import from slices located in layers strictly below it.
-* For example, a file inside 📁 ~/features/aaa (~/features/aaa/api/request.ts) cannot import code from any file in 📁 ~/features/bbb, but can import from 📁 ~/entities and 📁 ~/shared. It can also import from other files within its own slice 📁 ~/features/aaa (e.g., ~/features/aaa/lib/cache.ts).
+* For example, a file inside 📁 `~/features/aaa` (`~/features/aaa/api/request.ts`) cannot import code from any file in 📁 `~/features/bbb`, but can import from 📁 `~/entities` and 📁 `~/shared`. It can also import from other files within its own slice 📁 `~/features/aaa` (e.g., `~/features/aaa/lib/cache.ts`).
 
 #### Special Exceptions: App and Shared Layers
 
