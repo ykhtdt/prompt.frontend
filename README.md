@@ -9,5 +9,7 @@ prompt.frontend/
 ├── README.md              # 프로젝트 설명 및 구조
 └── rules/                 # 프로젝트 규칙 및 가이드라인
     ├── feature-sliced-design
+    │   └── {}.md
     └── git-commit-convention
+        └── {}.md
 ```
