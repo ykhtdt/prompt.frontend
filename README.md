@@ -8,6 +8,6 @@
 prompt.frontend/
 ├── README.md              # 프로젝트 설명 및 구조
 └── rules/                 # 프로젝트 규칙 및 가이드라인
-    ├── feature-sliced-design.en.md  # FSD 아키텍처 방법론 가이드 (영문)
-    └── feature-sliced-design.ko.md  # FSD 아키텍처 방법론 가이드 (한글)
+    ├── feature-sliced-design
+    └── git-commit-convention
 ```
