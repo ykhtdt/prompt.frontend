@@ -1,6 +1,6 @@
 Feature-Sliced Design (FSD) Architectural Methodology v2.1 (English)
 
-> Last updated: May 06, 2025 19:51
+> Last updated: May 16, 2025 15:40
 
 ## 1. Layer Structure
   * Layers are the first level of organisational hierarchy in Feature-Sliced Design
@@ -184,3 +184,101 @@ When importing code from multiple layers, it is recommended to organize import s
   ```
 
 This ordering aligns with the official ESLint rules for Feature-Sliced Design and makes the code structure and dependencies more clear.
+
+## 3. Public API Rules
+
+Public API is a contract between a group of modules, like a slice, and the code that uses it. It also acts as a gate, only allowing access to certain objects.
+
+### 3-1. Public API Implementation
+
+In practice, it's usually implemented as an index file with re-exports:
+
+```javascript
+// pages/auth/index.js
+export { LoginPage } from "./ui/LoginPage";
+export { RegisterPage } from "./ui/RegisterPage";
+```
+
+### 3-2. Characteristics of a Good Public API
+
+A good public API makes using and integrating a slice into other code convenient and reliable. It can be achieved by setting these three goals:
+
+1. The rest of the application must be protected from structural changes to the slice, like a refactoring.
+2. Significant changes in the behavior of the slice that break the previous expectations should cause changes in the public API.
+3. Only the necessary parts of the slice should be exposed.
+
+The last goal has important practical implications about not using wildcard re-exports:
+
+```javascript
+// Bad practice, features/comments/index.js
+// ❌ BAD CODE BELOW, DON'T DO THIS
+export * from "./ui/Comment";  // 👎 don't try this at home
+export * from "./model/comments";  // 💩 this is bad practice
+```
+
+This hurts the discoverability of a slice and can accidentally expose module internals, making refactoring difficult.
+
+### 3-3. Public API for Cross-imports
+
+Cross-imports are a situation when one slice imports from another slice on the same layer. Usually that is prohibited by the import rule on layers, but often there are legitimate reasons to cross-import. For example, business entities often reference each other in the real world, and it's best to reflect these relationships in the code instead of working around them.
+
+For this purpose, there's a special kind of public API, also known as the `@x` notation. If you have entities A and B, and entity B needs to import from entity A, then entity A can declare a separate public API just for entity B:
+
+```
+📂 entities
+   📂 A
+         📂 @x
+                  📄 B.ts — a special public API just for code inside entities/B/
+         📄 index.ts — the regular public API
+```
+
+Then the code inside `entities/B/` can import from `entities/A/@x/B`:
+
+```javascript
+import type { EntityA } from "entities/A/@x/B";
+```
+
+The notation `A/@x/B` is meant to be read as "A crossed with B".
+
+> Try to keep cross-imports to a minimum, and **only use this notation on the Entities layer**, where eliminating cross-imports is often unreasonable.
+
+### 3-4. Issues with Index Files
+
+Index files like `index.js`, also known as barrel files, are the most common way to define a public API. They are easy to make, but they are known to cause problems with certain bundlers and frameworks:
+
+#### 3-4-1. Circular Imports
+
+Circular import is when two or more files import each other in a circle. These situations are often difficult for bundlers to deal with, and in some cases they might even lead to runtime errors that might be difficult to debug.
+
+To prevent this issue, consider these two principles:
+- When files are in the same slice, always use _relative_ imports and write the full import path
+- When they are in different slices, always use _absolute_ imports, for example, with an alias
+
+#### 3-4-2. Large Bundles and Broken Tree-shaking in Shared
+
+Some bundlers might have a hard time tree-shaking (removing code that isn't imported) when you have an index file that re-exports everything.
+
+Usually this isn't a problem for public APIs, but for `shared/ui` and `shared/lib`, it's recommended to have a separate index file for each component or library:
+
+```
+📂 shared/ui/
+   📂 button
+         📄 index.js
+   📂 text-field
+         📄 index.js
+```
+
+#### 3-4-3. No Real Protection Against Side-stepping the Public API
+
+When you create an index file for a slice, you don't actually forbid anyone from not using it and importing directly.
+**Be careful as IDE auto-imports may cause direct imports that violate the Public API rules.**
+To catch these issues automatically, we recommend using Steiger, an architectural linter with a ruleset for Feature-Sliced Design.
+
+#### 3-4-4. Worse Performance of Bundlers on Large Projects
+
+Having a large amount of index files in a project can slow down the development server. There are several things you can do to tackle this issue:
+
+1. Have separate index files for each component/library in `shared/ui` and `shared/lib` instead of one big one.
+2. Avoid having index files in segments on layers that have slices.
+3. If you have a very big project, there's a good chance that your application can be split into several big chunks. Each package can be a separate FSD root, with its own set of layers.
+   - For example, in a monorepo setup, some packages might only have Shared and Entities layers, while others might only have Pages and App. Others might include their own small Shared layer, but still use the big Shared from another package too.
