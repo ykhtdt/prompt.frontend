@@ -2,6 +2,11 @@ Feature-Sliced Design (FSD) Architectural Methodology v2.1 (English)
 
 > Last updated: May 16, 2025 15:40
 
+## Table of Contents
+1. [Layer Structure](#1-layer-structure)
+2. [Import Rule on Layers](#2-import-rule-on-layers)
+3. [Public API Rules](#3-public-api-rules)
+
 ## 1. Layer Structure
   * Layers are the first level of organisational hierarchy in Feature-Sliced Design
   * Their purpose is to separate code based on how much responsibility it needs and how many other modules in the app it depends on.
